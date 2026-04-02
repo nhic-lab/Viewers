@@ -118,6 +118,26 @@ const cornerstoneExtension: Types.Extensions.Extension = {
     const annotationUnsubscriptions = setUpAnnotationEventHandlers();
     unsubscriptions.push(...annotationUnsubscriptions);
 
+    // Emit NHIC_ANNOTATIONS_REQUEST once when the first viewport loads data,
+    // so the parent frame can hydrate OHIF with persisted annotations.
+    let nhicRequestFired = false;
+    const { unsubscribe: unsubNhicViewport } = cornerstoneViewportService.subscribe(
+      cornerstoneViewportService.EVENTS.VIEWPORT_DATA_CHANGED,
+      () => {
+        if (nhicRequestFired) return;
+        nhicRequestFired = true;
+        const studyInstanceUid =
+          new URLSearchParams(window.location.search).get('StudyInstanceUIDs') ?? '';
+        if (studyInstanceUid) {
+          window.parent.postMessage(
+            { type: 'NHIC_ANNOTATIONS_REQUEST', payload: { studyInstanceUid } },
+            '*'
+          );
+        }
+      }
+    );
+    unsubscriptions.push(unsubNhicViewport);
+
     toolbarService.registerEventForToolbarUpdate(cornerstoneViewportService, [
       cornerstoneViewportService.EVENTS.VIEWPORT_DATA_CHANGED,
     ]);

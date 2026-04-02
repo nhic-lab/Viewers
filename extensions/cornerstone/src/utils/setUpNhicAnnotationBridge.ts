@@ -1,8 +1,6 @@
 import * as csTools from '@cornerstonejs/tools';
 import { eventTarget } from '@cornerstonejs/core';
 
-// TODO: emit NHIC_ANNOTATIONS_REQUEST from onModeEnter when viewports are ready
-
 const { Enums: csToolsEnums } = csTools;
 
 let isHydrating = false;
