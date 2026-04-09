@@ -3,6 +3,8 @@ window.config = {
   extensions: [],
   modes: [],
   showStudyList: false,
+  maxNumberOfWebWorkers: 3,
+  defaultDataSourceName: "dicomweb",
   dataSources: [
     {
       namespace: "@ohif/extension-default.dataSourcesModule.dicomweb",
@@ -32,5 +34,45 @@ window.config = {
       },
     },
   ],
-  defaultDataSourceName: "dicomweb",
+  whiteLabeling: {
+    createLogoComponentFn: function (React) {
+      return React.createElement(
+        "div",
+        { style: { display: "flex", alignItems: "center", gap: "12px" } },
+        React.createElement("img", {
+          src: "/logo.svg",
+          alt: "Ministry of Health logo",
+          style: { height: "30px", width: "auto", flexShrink: 0 },
+        }),
+        React.createElement(
+          "div",
+          { style: { display: "flex", flexDirection: "column", gap: "2px" } },
+          React.createElement(
+            "span",
+            {
+              style: {
+                fontSize: "15px",
+                fontWeight: "600",
+                lineHeight: 1.2,
+                color: "#ffffff",
+              },
+            },
+            "Ministry of Health"
+          ),
+          React.createElement(
+            "p",
+            {
+              style: {
+                fontSize: "10px",
+                lineHeight: 1.2,
+                color: "#ffffff",
+                margin: 0,
+              },
+            },
+            "DICOM Viewer"
+          )
+        )
+      );
+    },
+  },
 };
