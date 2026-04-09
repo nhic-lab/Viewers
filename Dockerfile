@@ -96,10 +96,13 @@ COPY --from=builder /usr/src/app/platform/app/dist /usr/share/nginx/html${PUBLIC
 # Microscopy libraries depend on root level include, so must be copied
 COPY --from=builder /usr/src/app/platform/app/dist/dicom-microscopy-viewer /usr/share/nginx/html/dicom-microscopy-viewer
 
+COPY --chown=nginx:nginx .docker/nhic-entrypoint.sh /usr/src/nhic-entrypoint.sh
+
 # In entrypoint.sh, app-config.js might be overwritten, so chmod it to be writeable.
 # The nginx user cannot chmod it, so change to root.
 USER root
 RUN chown -R nginx:nginx /usr/share/nginx/html && chmod -R 777 /usr/share/nginx/html
+RUN chmod 777 /usr/src/nhic-entrypoint.sh
 USER nginx
-ENTRYPOINT ["/usr/src/entrypoint.sh"]
+ENTRYPOINT ["/usr/src/nhic-entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]
