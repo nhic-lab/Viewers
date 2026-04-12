@@ -44,10 +44,9 @@ jobs:
           # Note: This relies on the merge commit being directly pushed to main
           PR_DATA=$(gh pr list --state merged --search "$MERGE_COMMIT_SHA" --json number,headRefOid --jq '.[0]')
           if [ -z "$PR_DATA" ]; then
-            echo "Could not find merged PR for commit $MERGE_COMMIT_SHA."
-            # Decide how to handle - fail, or maybe generate coverage now?
-            # For now, let's fail.
-            exit 1
+            echo "No merged PR found for commit $MERGE_COMMIT_SHA (direct push). Skipping coverage download."
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
           fi
           PR_HEAD_SHA=$(echo "$PR_DATA" | jq -r '.headRefOid')
           PR_NUMBER=$(echo "$PR_DATA" | jq -r '.number')
@@ -60,15 +59,16 @@ jobs:
           RUN_ID=$(gh run list --workflow playwright.yml --commit "$PR_HEAD_SHA" --event pull_request --json databaseId --jq '.[0].databaseId')
 
           if [ -z "$RUN_ID" ]; then
-            echo "Could not find any 'playwright.yml' run for PR $PR_NUMBER (Head SHA: $PR_HEAD_SHA)."
-            # Decide how to handle - maybe try finding the artifact from the merge commit run if that exists?
-            # For now, let's fail.
-            exit 1
+            echo "No playwright.yml run found for PR $PR_NUMBER (Head SHA: $PR_HEAD_SHA). Skipping coverage download."
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
           fi
           echo "Found Run ID: $RUN_ID"
+          echo "skip=false" >> $GITHUB_OUTPUT
           echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
 
       - name: Download coverage artifact from PR run
+        if: steps.find_pr_run.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -85,6 +85,7 @@ jobs:
         run: cd platform/docs && bun install
 
       - name: Copy coverage to docs static directory
+        if: steps.find_pr_run.outputs.skip != 'true'
         run: |
           # Copy files from the downloaded artifact directory
           mkdir -p platform/docs/static/coverage
