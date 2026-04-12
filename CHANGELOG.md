@@ -3,6 +3,77 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [3.13.0-beta.54](https://github.com/OHIF/Viewers/compare/v3.13.0-beta.53...v3.13.0-beta.54) (2026-04-08)
+
+
+### Bug Fixes
+
+* **cornerstone:** read FrameOfReferenceUID from display set in viewport service ([#5950](https://github.com/OHIF/Viewers/issues/5950)) ([d219171](https://github.com/OHIF/Viewers/commit/d219171e25caf5a7c575080f63819d6f4fe45016))
+
+
+
+
+
+# [3.13.0-beta.53](https://github.com/OHIF/Viewers/compare/v3.13.0-beta.52...v3.13.0-beta.53) (2026-04-06)
+
+
+### Reverts
+
+* rename DisplaySet.frameOfReferenceUID back to FrameOfReferenceUID ([#5943](https://github.com/OHIF/Viewers/issues/5943)) ([0e933c2](https://github.com/OHIF/Viewers/commit/0e933c256e07b7cda35ed2ba3cfb1ab35d895d57))
+
+
+
+
+
+# [3.13.0-beta.52](https://github.com/OHIF/Viewers/compare/v3.13.0-beta.51...v3.13.0-beta.52) (2026-04-06)
+
+
+### Bug Fixes
+
+* **defaultRouteInit:** pass sorted display sets to hanging protocol for deterministic viewport order ([#5933](https://github.com/OHIF/Viewers/issues/5933)) ([68b10d3](https://github.com/OHIF/Viewers/commit/68b10d365a72d656c83a1c61624dcbd245fff5db))
+
+
+### Features
+
+* **component:** Adds SmartScrollbar to ui-next - OHIF-2558 ([#5924](https://github.com/OHIF/Viewers/issues/5924)) ([91a8715](https://github.com/OHIF/Viewers/commit/91a8715795c1501b271f10b361382331eb836bf9))
+
+
+
+
+
+# [3.13.0-beta.51](https://github.com/OHIF/Viewers/compare/v3.13.0-beta.50...v3.13.0-beta.51) (2026-04-03)
+
+
+### Bug Fixes
+
+* **security:** Update yarn.lock that was missed in PR [#5936](https://github.com/OHIF/Viewers/issues/5936). ([#5940](https://github.com/OHIF/Viewers/issues/5940)) ([84ddf78](https://github.com/OHIF/Viewers/commit/84ddf78c879a7cb1aa62c3aaef4428adf67065da))
+
+
+
+
+
+# [3.13.0-beta.50](https://github.com/OHIF/Viewers/compare/v3.13.0-beta.49...v3.13.0-beta.50) (2026-04-02)
+
+
+### Bug Fixes
+
+* **security:** update dependencies to fix security vulnerabilities ([#5936](https://github.com/OHIF/Viewers/issues/5936)) ([5358a39](https://github.com/OHIF/Viewers/commit/5358a3985a1fa87eb1e3e7493dd61254f790b6d8))
+
+
+
+
+
+# [3.13.0-beta.49](https://github.com/OHIF/Viewers/compare/v3.13.0-beta.48...v3.13.0-beta.49) (2026-04-02)
+
+
+### Bug Fixes
+
+* **segmentation:** restrict overlay segmentation menu to same frame of reference as viewport background display set  ([#5900](https://github.com/OHIF/Viewers/issues/5900)) ([b9029ef](https://github.com/OHIF/Viewers/commit/b9029ef6f8d63a0e36ec929310c1c5ad3f563ef8))
+
+
+
+
+
 # [3.13.0-beta.48](https://github.com/OHIF/Viewers/compare/v3.13.0-beta.47...v3.13.0-beta.48) (2026-04-01)
 
 
