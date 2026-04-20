@@ -26,7 +26,6 @@ npm-debug.log
 package-lock.json
 yarn-error.log
 .DS_Store
-.env
 *.code-workspace
 .directory
 
@@ -71,3 +70,4 @@ libs/
 libs/
 link-cs3d.js
 unlink-cs3d.js
+config.bat
