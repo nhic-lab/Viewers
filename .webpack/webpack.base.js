@@ -45,6 +45,13 @@ const defineValues = {
   'process.env.BUILD_NUM': JSON.stringify(BUILD_NUM),
   'process.env.VERSION_NUMBER': JSON.stringify(VERSION_NUMBER),
   'process.env.COMMIT_HASH': JSON.stringify(COMMIT_HASH),
+  /*
+   * Node globals referenced by bundled deps (onnxruntime-web via
+   * @cornerstonejs/ai) that would otherwise throw
+   * "ReferenceError: __filename is not defined" in a browser ESM chunk.
+   */
+  __filename: JSON.stringify('/'),
+  __dirname: JSON.stringify('/'),
   /* i18n */
   'process.env.USE_LOCIZE': JSON.stringify(process.env.USE_LOCIZE || ''),
   'process.env.LOCIZE_PROJECTID': JSON.stringify(process.env.LOCIZE_PROJECTID || ''),

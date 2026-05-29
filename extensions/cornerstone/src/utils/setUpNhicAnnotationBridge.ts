@@ -16,6 +16,84 @@ const pendingModifications = new Map<string, ReturnType<typeof mapAnnotation>>()
 let modificationTimer: ReturnType<typeof setTimeout> | null = null;
 const MODIFICATION_DEBOUNCE_MS = 250;
 
+/*
+ * Replace non-serializable class instances in annotation.data with a
+ * storage-safe shape. Only SplineROI needs this today — data.spline.instance
+ * is a live spline class (CatmullRomSpline/BSpline/…) whose methods live on
+ * the prototype and disappear after a JSON round-trip, crashing the render.
+ */
+function sanitizeDataForTransport(data: any): any {
+  if (!data) return data;
+  const out = { ...data };
+  if (data.spline && typeof data.spline === 'object') {
+    out.spline = { type: data.spline.type, resolution: data.spline.resolution };
+  }
+  return out;
+}
+
+/*
+ * Resolve a spline-type enum string to its class constructor. The classes
+ * live under csTools.splines.* (namespace re-export), not at the top level.
+ */
+function getSplineClass(type: string | undefined): any | null {
+  if (!type) return null;
+  const splines = (csTools as any).splines;
+  if (!splines) return null;
+  switch (type) {
+    case 'CATMULLROM':
+      return splines.CatmullRomSpline ?? null;
+    case 'BSPLINE':
+      return splines.BSpline ?? null;
+    case 'LINEAR':
+      return splines.LinearSpline ?? null;
+    case 'CARDINAL':
+      return splines.CardinalSpline ?? null;
+    default:
+      return null;
+  }
+}
+
+/*
+ * Rebuild non-serializable fields in place before addAnnotation. Returns
+ * true if the annotation is safe to add, false if not — callers MUST skip
+ * addAnnotation on false, since SplineROITool crashes on render if
+ * data.spline or data.spline.instance is missing (both
+ * renderAnnotationInstance and isPointNearTool assume a live instance).
+ */
+function rehydrateToolSpecificData(toolName: string, data: any): boolean {
+  if (toolName !== 'SplineROI') return true;
+  if (!data?.spline) return false;
+
+  const SplineCtor = getSplineClass(data.spline.type);
+  const controlPoints = data?.handles?.points;
+
+  if (!SplineCtor || !Array.isArray(controlPoints)) return false;
+
+  try {
+    const instance = new SplineCtor();
+    if (
+      typeof data.spline.resolution === 'number' &&
+      typeof instance.setResolution === 'function'
+    ) {
+      instance.setResolution(data.spline.resolution);
+    }
+    if (typeof instance.setClosed === 'function' && data.contour?.closed) {
+      instance.setClosed(true);
+    }
+    if (typeof instance.setControlPoints === 'function') {
+      instance.setControlPoints(controlPoints);
+    }
+    data.spline = {
+      type: data.spline.type,
+      resolution: data.spline.resolution,
+      instance,
+    };
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function mapAnnotation(annotation: any) {
   return {
     ohifAnnotationId: annotation.annotationUID,
@@ -24,7 +102,7 @@ function mapAnnotation(annotation: any) {
     sopInstanceUid: annotation.metadata?.referencedImageId ?? '',
     frameIndex: annotation.metadata?.frameNumber ?? 0,
     data: {
-      ...(annotation.data ?? {}),
+      ...sanitizeDataForTransport(annotation.data ?? {}),
       /*
        * Preserve full Cornerstone metadata (FrameOfReferenceUID, viewPlaneNormal,
        * viewUp, referencedImageId) so hydration can reconstruct the annotation
@@ -146,6 +224,17 @@ export function setUpNhicAnnotationBridge(): () => void {
             isLocked: false,
             isVisible: true,
           };
+
+          const safe = rehydrateToolSpecificData(
+            resolvedMetadata.toolName,
+            annotationObj.data
+          );
+          if (!safe) {
+            console.warn(
+              `[NHIC] Skipping SplineROI annotation ${ann.ohifAnnotationId}: could not reconstruct spline instance`
+            );
+            continue;
+          }
 
           csTools.annotation.state.addAnnotation(annotationObj);
         } catch (err) {
